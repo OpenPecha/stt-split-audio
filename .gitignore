@@ -3,7 +3,7 @@
 *.mp3
 *.csv
 data
-*.txt
 *.docx
 *.pyc
 *.json
+STT_AB/etexts
