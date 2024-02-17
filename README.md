@@ -74,6 +74,16 @@ Get started with _Project Name_ by _(write the first step a user needs to start 
     After following the steps from the above link also run 
     > ln -s /usr/local/bin/ffmpeg/ffprobe /usr/bin/ffprobe
 
+3. Login to aws cli with 
+    > aws configure
+
+4. Database credentials 
+    Create an .env file in util with the following environment variables 
+    - HOST
+    - DBNAME
+    - DBUSER
+    - PASSWORD
+    
 ### Configure _Project Name_
 1. _Write the step here._
 2. _Write the step here._
