@@ -69,12 +69,8 @@ Get started with _Project Name_ by _(write the first step a user needs to start 
     
     _(Optional: Include a code sample or screenshot that helps your users complete this step.)_
 
-3. _Write the step here._
- 
-    a. _Substep 1_ 
-    
-    b. _Substep 2_
-
+2. Install ffmpeg on EC2 if you are using EC2 Amazon Linux
+    Use [this](https://www.maskaravivek.com/post/how-to-install-ffmpeg-on-ec2-running-amazon-linux/) link to install ffmpeg
 
 ### Configure _Project Name_
 1. _Write the step here._
