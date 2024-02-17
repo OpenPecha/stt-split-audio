@@ -60,14 +60,16 @@ Before using _Project Name_, ensure you have:
 Get started with _Project Name_ by _(write the first step a user needs to start using the project. Use a verb to start.)_.
 
 
-### Install _Project Name_
-1. _Write the step here._ 
+### Install stt-split-audio
+1. Get the Google Cloud Client secret to download files from Google Drive 
 
-    _Explanatory text here_ 
+    Login to [Google Cloud Console](https://console.cloud.google.com/) and create a project.
+   Click "API and services" > "Credentials" > "OAuth 2.0 Client IDs" > Download "Client secret" and rename it to credentials.json
+   Upload the credentials.json file to **util** folder in **stt-split-audio**
     
     _(Optional: Include a code sample or screenshot that helps your users complete this step.)_
 
-2. _Write the step here._
+3. _Write the step here._
  
     a. _Substep 1_ 
     
