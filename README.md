@@ -71,6 +71,8 @@ Get started with _Project Name_ by _(write the first step a user needs to start 
 
 2. Install ffmpeg on EC2 if you are using EC2 Amazon Linux
     Use [this](https://www.maskaravivek.com/post/how-to-install-ffmpeg-on-ec2-running-amazon-linux/) link to install ffmpeg
+    After following the steps from the above link also run 
+    > ln -s /usr/local/bin/ffmpeg/ffprobe /usr/bin/ffprobe
 
 ### Configure _Project Name_
 1. _Write the step here._
