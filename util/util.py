@@ -27,6 +27,46 @@ def get_time_span(filename):
         print(f"filename is:'{filename}'. Could not parse to get time span.")
         return 0
 
+def get_all_url():
+
+    from dotenv import load_dotenv
+    
+    try:
+        load_dotenv(dotenv_path='../util/.env')
+    except Exception as e:
+        print(f"Check the .env file in util: {str(e)}")
+
+    HOST = os.environ.get('HOST')
+    DBNAME = os.environ.get('DBNAME')
+    DBUSER = os.environ.get('DBUSER')
+    PASSWORD = os.environ.get('PASSWORD')
+    # SQL query to find the maximum ID
+    query = """select url from "Task" t"""
+
+    try:
+        # Connect to your postgres DB
+        conn = psycopg2.connect(host=HOST, dbname=DBNAME, user=DBUSER, password=PASSWORD)
+
+        # Open a cursor to perform database operations
+        cur = conn.cursor()
+
+        # Execute the query
+        cur.execute(query)
+
+        # Fetch and print the result
+        all_urls = cur.fetchall()
+        print(f"All the url in the 'Task' table is fetched")
+
+        # Close the cursor and the connection
+        cur.close()
+        conn.close()
+        all_urls = list(map(lambda x: x[0], all_urls))
+        return all_urls
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
 def get_max_db_id():
 
     from dotenv import load_dotenv
