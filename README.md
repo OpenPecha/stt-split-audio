@@ -8,21 +8,17 @@
   <br>
 </h1>
 
-## _Project Name_
-_The project name should match its code's capability so that new users can easily understand what it does._
+## stt-split-audio
 
 ## Owner(s)
 
 _Change to the owner(s) of the new repo. (This template's owners are:)_
-- [@ngawangtrinley](https://github.com/ngawangtrinley)
-- [@mikkokotila](https://github.com/mikkokotila)
-- [@evanyerburgh](https://github.com/evanyerburgh)
+- [@spsither](https://github.com/spsither)
 
 ## RFXs
 Requests for work (RFWs) and requests for comments (RFCs) associated with this project:
-* [RFX name](#)
-* [RFX name](#)
-* [RFX name](#)
+* [RFW0051: pecha.tools for STT](https://github.com/OpenPecha/Requests/issues/175)
+* [RFC0051: pecha.tools for STT](https://github.com/OpenPecha/Requests/issues/214)
 
 ## Table of contents
 <p align="center">
@@ -38,26 +34,24 @@ Requests for work (RFWs) and requests for comments (RFCs) associated with this p
 <hr>
 
 ## Project description
-_Use one of these:_
 
-With _Project Name_ you can _verb_ _noun_...
-
-_Project Name_ helps you _verb_ _noun_...
+stt-split-audio helps you feed audio segments to stt.pecha.tools for annotation.
 
 
 ## Who this project is for
-This project is intended for _target user_ who wants to _user objective_.
+This project is intended for STT training data manager who wants to supply audio segments for annotation.
 
 
 ## Project dependencies
-Before using _Project Name_, ensure you have:
-* _Prerequisite 1_
-* _Prerequisite 2_
-* _Prerequisite 3..._
+Before using stt-split-audio, ensure you have:
+* Access to the catalog spread sheets.
+* HuggingFace account and token.
+* AWS credentials (aws_access_key_id, aws_secret_access_key) that has access to upload new segments to the monlam.ai.stt bucket
+* Google Cloud account with access to the audio files in the catalog.
 
 
 ## Instructions for use
-Get started with _Project Name_ by _(write the first step a user needs to start using the project. Use a verb to start.)_.
+Get started with stt-split-audio by checking the catalog for a department and checking what id range to upload to the stt.pecha.tools.
 
 
 ### Install stt-split-audio
@@ -84,73 +78,8 @@ Get started with _Project Name_ by _(write the first step a user needs to start 
     - DBUSER
     - PASSWORD
     
-### Configure _Project Name_
-1. _Write the step here._
-2. _Write the step here._
-
-
-### Run _Project Name_
-1. _Write the step here._
-2. _Write the step here._
-
-
-### Troubleshoot _Project Name_
-1. _Write the step here._
-2. _Write the step here._
-
-<table>
-  <tr>
-   <td>
-    Issue
-   </td>
-   <td>
-    Solution
-   </td>
-  </tr>
-  <tr>
-   <td>
-    _Describe the issue here_
-   </td>
-   <td>
-    _Write solution here_
-   </td>
-  </tr>
-  <tr>
-   <td>
-    _Describe the issue here_
-   </td>
-   <td>
-    _Write solution here_
-   </td>
-  </tr>
-  <tr>
-   <td>
-    _Describe the issue here_
-   </td>
-   <td>
-    _Write solution here_
-   </td>
-  </tr>
-</table>
-
-
-Other troubleshooting supports:
-* _Link to FAQs_
-* _Link to runbooks_
-* _Link to other relevant support information_
-
-
 ## Contributing guidelines
 If you'd like to help out, check out our [contributing guidelines](/CONTRIBUTING.md).
-
-
-## Additional documentation
-_Include links and brief descriptions to additional documentation._
-
-For more information:
-* [Reference link 1](#)
-* [Reference link 2](#)
-* [Reference link 3](#)
 
 
 ## How to get help
@@ -160,4 +89,4 @@ For more information:
 
 
 ## Terms of use
-_Project Name_ is licensed under the [MIT License](/LICENSE.md).
+stt-split-audio is licensed under the [MIT License](/LICENSE.md).
