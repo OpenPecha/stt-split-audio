@@ -261,26 +261,46 @@ def split_audio(audio_file, output_folder):
         vad_segment = original_audio_segment[sec_to_millis(vad_span.start) : sec_to_millis(vad_span.end)]
         vad_span_length = vad_span.end - vad_span.start
         if vad_span_length >= lower_limit and vad_span_length <= upper_limit:
-            print(f"{counter} {vad_span_length} vad")
-            save_segment(segment=vad_segment, folder=output_folder, prefix=output_folder, id=counter, start_ms=sec_to_millis(vad_span.start), end_ms=sec_to_millis(vad_span.end))
+            save_segment(
+                segment=vad_segment, 
+                folder=output_folder, 
+                prefix=output_folder, 
+                id=counter, 
+                start_ms=sec_to_millis(vad_span.start), 
+                end_ms=sec_to_millis(vad_span.end))
+            print(f"{counter} {vad_span_length:.2f} {sec_to_millis(vad_span.start):.2f} {sec_to_millis(vad_span.end):.2f} vad")
             counter += 1
         elif vad_span_length > upper_limit:
             non_mute_segment_splits = librosa.effects.split(original_audio_ndarray[int(sec_to_frame(vad_span.start, sampling_rate)) : int(sec_to_frame(vad_span.end, sampling_rate))], top_db=30)
+            # print(non_mute_segment_splits)
             for split_start, split_end in non_mute_segment_splits:
+                # print(f'non mute {(frame_to_sec(split_end, sampling_rate) - frame_to_sec(split_start, sampling_rate)):.2f} {vad_span.start + frame_to_sec(split_start, sampling_rate):.2f} {vad_span.start + frame_to_sec(split_end, sampling_rate):.2f} {split_start} {split_end}')
                 segment_split = original_audio_segment[sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate)) : sec_to_millis(vad_span.start + frame_to_sec(split_end, sampling_rate))]
                 segment_split_duration = ((vad_span.start + frame_to_sec(split_end, sampling_rate)) - (vad_span.start + frame_to_sec(split_start, sampling_rate) ))
                 if segment_split_duration >= lower_limit and segment_split_duration <= upper_limit:
-                    print(f"{counter} {segment_split_duration} split")
-                    save_segment(segment=segment_split, folder=output_folder, prefix=output_folder, id=counter, start_ms=sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate)), end_ms=sec_to_millis(vad_span.start + frame_to_sec(split_end, sampling_rate)))
+                    save_segment(
+                        segment=segment_split, 
+                        folder=output_folder, 
+                        prefix=output_folder, 
+                        id=counter, 
+                        start_ms=sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate)), 
+                        end_ms=sec_to_millis(vad_span.start + frame_to_sec(split_end, sampling_rate)))
+                    print(f"{counter} {segment_split_duration:.2f} {sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate)):.2f} {sec_to_millis(vad_span.start + frame_to_sec(split_end, sampling_rate)):.2f} split")
                     counter += 1
                 elif segment_split_duration > upper_limit:
                     chop_length = segment_split_duration / 2
                     while chop_length > upper_limit:
                         chop_length = chop_length / 2
                     for j in range(int(segment_split_duration / chop_length)):
-                        segment_split_chop = original_audio_segment[sec_to_millis(vad_span.start + chop_length * j) : sec_to_millis(vad_span.start + chop_length * (j + 1))]
-                        print(f"{counter} {chop_length} chop")
-                        save_segment(segment=segment_split_chop, folder=output_folder, prefix=output_folder, id=counter, start_ms=sec_to_millis(vad_span.start + chop_length * j ), end_ms=sec_to_millis(vad_span.start + chop_length * ( j + 1 )))
+                        segment_split_chop = original_audio_segment[sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate) + chop_length * j) : sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate) + chop_length * (j + 1))]
+                        save_segment(
+                            segment=segment_split_chop, 
+                            folder=output_folder, 
+                            prefix=output_folder, 
+                            id=counter, 
+                            start_ms=sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate) + chop_length * j ), 
+                            end_ms=sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate) + chop_length * ( j + 1 )))
+                        print(f"{counter} {chop_length:.2f} {sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate) + chop_length * j ):.2f} {sec_to_millis(vad_span.start + frame_to_sec(split_start, sampling_rate) + chop_length * ( j + 1 )):.2f} chop")
                         counter += 1
 
 def split_audio_files(prefix, ext):
