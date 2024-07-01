@@ -439,3 +439,38 @@ def split_audio_files(prefix, ext):
         stt_file = stt_file.split(".")[0]
         split_audio(audio_file=f"./full_audio/{stt_file}.{ext}", output_folder=stt_file)
         # delete_file(file=f"./{stt_folder}/{stt_folder}.wav")
+
+
+import re
+def clean_transcription(text):
+    text = text.replace('\n', ' ')
+    text = text.replace('\t', ' ')
+    text = text.strip()
+    
+    text = re.sub("༌", "་",text) # there are two type of 'tsak' let's normalize 0xf0b to 0xf0c
+    
+    text = re.sub("༎", "།",text) # normalize double 'shae' 0xf0e to 0xf0d
+    text = re.sub("༔", "།",text)
+    text = re.sub("༏", "།",text)
+    text = re.sub("༐", "།",text)
+
+    text = re.sub("ཽ", "ོ",text) # normalize
+    text = re.sub("ཻ", "ེ",text) # normalize "᫥"
+    
+    text = re.sub(r"\s+།", "།", text)
+    text = re.sub(r"།+", "།", text)
+    text = re.sub(r"།", "། ", text)
+    text = re.sub(r"\s+་", "་", text)
+    text = re.sub(r"་+", "་", text)
+    text = re.sub(r"\s+", " ", text)
+    
+    text = re.sub(r"ཧཧཧ+", "ཧཧཧ", text)
+    text = re.sub(r'ཧི་ཧི་(ཧི་)+', r'ཧི་ཧི་ཧི་', text)
+    text = re.sub(r'ཧེ་ཧེ་(ཧེ་)+', r'ཧེ་ཧེ་ཧེ་', text)
+    text = re.sub(r'ཧ་ཧ་(ཧ་)+', r'ཧ་ཧ་ཧ་', text)
+    text = re.sub(r'ཧོ་ཧོ་(ཧོ་)+', r'ཧོ་ཧོ་ཧོ་', text)
+    text = re.sub(r'ཨོ་ཨོ་(ཨོ་)+', r'ཨོ་ཨོ་ཨོ་', text)
+
+    chars_to_ignore_regex = "[\,\?\.\!\-\;\:\"\“\%\‘\”\�\/\{\}\(\)༽》༼《༄༅༈༑༠'|·×༆༸༾ཿ྄྅྆྇ྋ࿒ᨵ​’„╗᩺╚༿᫥ྂ༊ྈ༁༂༃༇༈༉༒༷༺༻࿐࿑࿓࿔࿙࿚༴࿊]"
+    text = re.sub(chars_to_ignore_regex, '', text)+" "
+    return text
