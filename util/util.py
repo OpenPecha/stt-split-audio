@@ -1,218 +1,175 @@
-import psycopg2
 import os
+import psycopg2
+import shutil
 from dotenv import load_dotenv
+from pathlib import Path
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+import io
+import pandas as pd
+from pyannote.audio import Pipeline
+from pydub import AudioSegment
+import librosa
+import torchaudio
 from tqdm.notebook import tqdm
-
+import re
 
 def get_time_span(filename):
-
-    filename = filename.replace(".wav", "")
-    filename = filename.replace(".WAV", "")
-    filename = filename.replace(".mp3", "")
-    filename = filename.replace(".MP3", "")
+    """
+    Extracts the time span in seconds from a filename.
+    
+    Args:
+        filename (str): The filename from which to extract the time span.
+    
+    Returns:
+        float: The time span in seconds, or 0 if extraction fails.
+    """
+    filename = filename.lower().replace(".wav", "").replace(".mp3", "")
     try:
         if "_to_" in filename:
             start, end = filename.split("_to_")
-            start = start.split("_")[-1]
-            end = end.split("_")[0]
-            end = float(end)
-            start = float(start)
-            return (end - start) / 1000
         else:
             start, end = filename.split("-")
-            start = start.split("_")[-1]
-            end = end.split("_")[0]
-            end = float(end)
-            start = float(start)
-            return abs(end - start)
+        start = float(start.split("_")[-1])
+        end = float(end.split("_")[0])
+        return (end - start) / 1000 if "_to_" in filename else abs(end - start)
     except Exception as err:
-        print(f"filename is:'{filename}'. Could not parse to get time span.")
+        print(f"Error parsing filename '{filename}': {err}")
         return 0
 
+def get_db_connection():
+    """
+    Establishes a connection to the PostgreSQL database.
+    
+    Returns:
+        connection: A psycopg2 connection object.
+    """
+    try:
+        load_dotenv(dotenv_path="../util/.env")
+    except Exception as e:
+        print(f"Check the .env file in util: {str(e)}")
+
+    return psycopg2.connect(
+        host=os.environ.get("HOST"),
+        dbname=os.environ.get("DBNAME"),
+        user=os.environ.get("DBUSER"),
+        password=os.environ.get("PASSWORD")
+    )
 
 def get_all_url():
-
-    from dotenv import load_dotenv
-
+    """
+    Fetches all URLs from the 'Task' table in the database.
+    
+    Returns:
+        list: A list of URLs, or None if an error occurs.
+    """
+    query = """SELECT url FROM "Task" t"""
     try:
-        load_dotenv(dotenv_path="../util/.env")
-    except Exception as e:
-        print(f"Check the .env file in util: {str(e)}")
-
-    HOST = os.environ.get("HOST")
-    DBNAME = os.environ.get("DBNAME")
-    DBUSER = os.environ.get("DBUSER")
-    PASSWORD = os.environ.get("PASSWORD")
-    # SQL query to find the maximum ID
-    query = """select url from "Task" t"""
-
-    try:
-        # Connect to your postgres DB
-        conn = psycopg2.connect(
-            host=HOST, dbname=DBNAME, user=DBUSER, password=PASSWORD
-        )
-
-        # Open a cursor to perform database operations
+        conn = get_db_connection()
         cur = conn.cursor()
-
-        # Execute the query
         cur.execute(query)
-
-        # Fetch and print the result
-        all_urls = cur.fetchall()
-        print(f"All the url in the 'Task' table is fetched")
-
-        # Close the cursor and the connection
+        all_urls = [url[0] for url in cur.fetchall()]
         cur.close()
         conn.close()
-        all_urls = list(map(lambda x: x[0], all_urls))
+        print(f"Fetched all URLs from 'Task' table.")
         return all_urls
-
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
-
 
 def get_all_file_name():
-
+    """
+    Fetches all file names from the 'Task' table in the database.
+    
+    Returns:
+        list: A list of file names, or None if an error occurs.
+    """
+    query = """SELECT file_name FROM "Task" t"""
     try:
-        load_dotenv(dotenv_path="../util/.env")
-    except Exception as e:
-        print(f"Check the .env file in util: {str(e)}")
-
-    HOST = os.environ.get("HOST")
-    DBNAME = os.environ.get("DBNAME")
-    DBUSER = os.environ.get("DBUSER")
-    PASSWORD = os.environ.get("PASSWORD")
-    # SQL query to find the maximum ID
-    query = """select file_name from "Task" t"""
-
-    try:
-        # Connect to your postgres DB
-        conn = psycopg2.connect(
-            host=HOST, dbname=DBNAME, user=DBUSER, password=PASSWORD
-        )
-
-        # Open a cursor to perform database operations
+        conn = get_db_connection()
         cur = conn.cursor()
-
-        # Execute the query
         cur.execute(query)
-
-        # Fetch and print the result
-        all_urls = cur.fetchall()
-        print(f"All the file_name in the 'Task' table is fetched")
-
-        # Close the cursor and the connection
+        all_filenames = [filename[0] for filename in cur.fetchall()]
         cur.close()
         conn.close()
-        all_urls = list(map(lambda x: x[0], all_urls))
-        return all_urls
-
+        print(f"Fetched all file names from 'Task' table.")
+        return all_filenames
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
-
 
 def get_max_db_id():
-
-    from dotenv import load_dotenv
-
+    """
+    Fetches the maximum ID from the 'Task' table in the database.
+    
+    Returns:
+        int: The maximum ID, or None if an error occurs.
+    """
+    query = """SELECT MAX(id) FROM "Task" t"""
     try:
-        load_dotenv(dotenv_path="../util/.env")
-    except Exception as e:
-        print(f"Check the .env file in util: {str(e)}")
-
-    HOST = os.environ.get("HOST")
-    DBNAME = os.environ.get("DBNAME")
-    DBUSER = os.environ.get("DBUSER")
-    PASSWORD = os.environ.get("PASSWORD")
-    # SQL query to find the maximum ID
-    query = """select max(id) from "Task" t"""
-
-    try:
-        # Connect to your postgres DB
-        conn = psycopg2.connect(
-            host=HOST, dbname=DBNAME, user=DBUSER, password=PASSWORD
-        )
-
-        # Open a cursor to perform database operations
+        conn = get_db_connection()
         cur = conn.cursor()
-
-        # Execute the query
         cur.execute(query)
-
-        # Fetch and print the result
         max_id = cur.fetchone()[0]
-        print(f"The maximum ID in the 'Task' table is: {max_id}")
-
-        # Close the cursor and the connection
         cur.close()
         conn.close()
+        print(f"Maximum ID in 'Task' table: {max_id}")
         return max_id
-
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
 
-
 def read_spreadsheet(sheet_id):
-    import pandas as pd
-
+    """
+    Reads a Google Spreadsheet as a Pandas DataFrame.
+    
+    Args:
+        sheet_id (str): The ID of the Google Spreadsheet.
+    
+    Returns:
+        DataFrame: A Pandas DataFrame containing the spreadsheet data.
+    """
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv"
     df = pd.read_csv(url)
     return df
 
 
 def collect_segments(prefix, source, destination_folder):
-    from pathlib import Path
-    import shutil
-
-    # Source folder as a Path object
+    """
+    Collects audio segments from source folders starting with a given prefix
+    and copies them to the destination folder.
+    
+    Args:
+        prefix (str): The prefix to filter source folders.
+        source (str): The path to the source folder.
+        destination_folder (str): The path to the destination folder.
+    """
     source = Path(source)
-
-    # Use a list comprehension to find all folders with names starting with the specified prefix
-    source_folders = [
-        folder
-        for folder in source.iterdir()
-        if folder.is_dir() and folder.name.startswith(prefix)
-    ]
-
-    # Destination folder as a Path object
     destination_folder = Path(destination_folder)
-
-    # Create the destination folder if it doesn't exist
     destination_folder.mkdir(parents=True, exist_ok=True)
 
-    # Iterate through the source folders
-    for source_folder in source_folders:
-        # Iterate through the contents of each source folder
-        for wav_file in source_folder.glob("**/*.wav"):
-            # Create a destination path by joining the destination folder with the filename
-            destination_path = destination_folder / wav_file.name
-
-            # Copy the .wav file to the destination folder
-            shutil.copy2(wav_file, destination_path)
-            print(f"Copied {wav_file} to {destination_path}")
+    for source_folder in source.iterdir():
+        if source_folder.is_dir() and source_folder.name.startswith(prefix):
+            for wav_file in source_folder.glob("**/*.wav"):
+                destination_path = destination_folder / wav_file.name
+                shutil.copy2(wav_file, destination_path)
+                print(f"Copied {wav_file} to {destination_path}")
 
     print("Copying complete.")
 
-
-import io
-import os
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
-
-
 def create_drive_service():
+    """
+    Creates a Google Drive service object for interacting with the Google Drive API.
+    
+    Returns:
+        Resource: A Google Drive API service resource.
+    """
     creds = None
-    # The file token.json stores the user's access and refresh tokens.
     if os.path.exists("../util/token.json"):
         creds = Credentials.from_authorized_user_file("../util/token.json")
-    # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -221,21 +178,22 @@ def create_drive_service():
                 "../util/credentials.json", ["https://www.googleapis.com/auth/drive"]
             )
             creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
         with open("../util/token.json", "w") as token:
             token.write(creds.to_json())
-
     return build("drive", "v3", credentials=creds)
 
 
 # Create the drive service
 drive_service = create_drive_service()
 
-
 def download_audio_gdrive(gd_url, file_name):
-
-    from pathlib import Path
-
+    """
+    Downloads an audio file from Google Drive to a local directory.
+    
+    Args:
+        gd_url (str): The Google Drive URL or file ID.
+        file_name (str): The desired name of the downloaded file.
+    """
     Path("full_audio").mkdir(parents=True, exist_ok=True)
 
     if Path("full_audio", file_name).exists():
@@ -243,28 +201,20 @@ def download_audio_gdrive(gd_url, file_name):
         return
 
     file_id = gd_url.split("/")[-2] if "drive.google.com" in gd_url else gd_url
-    # Download the file
     request = drive_service.files().get_media(fileId=file_id)
-
-    # Download the file
     fh = io.BytesIO()
     downloader = MediaIoBaseDownload(fh, request)
+    
     done = False
-    while done is False:
+    while not done:
         status, done = downloader.next_chunk()
         print(f"Download {int(status.progress() * 100)}%.")
 
-    # Save the file locally
     with open(f"full_audio/{file_name}", "wb") as f:
         f.write(fh.getbuffer())
-        print("File downloaded successfully.")
+        print(f"File {file_name} downloaded successfully.")
 
 
-from pyannote.audio import Pipeline
-from pydub import AudioSegment
-import librosa
-import torchaudio
-import os
 
 upper_limit = 10
 lower_limit = 2
@@ -427,6 +377,13 @@ def split_audio(audio_file, output_folder):
 
 
 def split_audio_files(prefix, ext):
+    """
+    Process and split all audio files with a specific prefix and extension.
+
+    Args:
+        prefix (str): Prefix for the filenames.
+        ext (str): File extension of the audio files.
+    """
     stt_files = [
         filename
         for filename in os.listdir("full_audio")
@@ -441,29 +398,40 @@ def split_audio_files(prefix, ext):
         # delete_file(file=f"./{stt_folder}/{stt_folder}.wav")
 
 
-import re
+
 def clean_transcription(text):
+    """
+    Cleans and normalizes Tibetan transcription text to make it syntactically correct.
+
+    Args:
+        text (str): The input transcription text.
+
+    Returns:
+        str: The cleaned and normalized transcription text.
+    """
+    # Replace newline and tab characters with spaces
     text = text.replace('\n', ' ')
     text = text.replace('\t', ' ')
     text = text.strip()
     
-    text = re.sub("༌", "་",text) # there are two type of 'tsak' let's normalize 0xf0b to 0xf0c
-    
-    text = re.sub("༎", "།",text) # normalize double 'shae' 0xf0e to 0xf0d
-    text = re.sub("༔", "།",text)
-    text = re.sub("༏", "།",text)
-    text = re.sub("༐", "།",text)
+    # Normalize specific Tibetan punctuation and characters
+    text = re.sub("༌", "་", text)  # Normalize tsak
+    text = re.sub("༎", "།", text)  # Normalize double shae
+    text = re.sub("༔", "།", text)
+    text = re.sub("༏", "།", text)
+    text = re.sub("༐", "།", text)
+    text = re.sub("ཽ", "ོ", text)  # Normalize
+    text = re.sub("ཻ", "ེ", text)  # Normalize
 
-    text = re.sub("ཽ", "ོ",text) # normalize
-    text = re.sub("ཻ", "ེ",text) # normalize "᫥"
-    
+    # Collapse multiple spaces and Tibetan spaces
     text = re.sub(r"\s+།", "།", text)
     text = re.sub(r"།+", "།", text)
     text = re.sub(r"།", "། ", text)
     text = re.sub(r"\s+་", "་", text)
     text = re.sub(r"་+", "་", text)
     text = re.sub(r"\s+", " ", text)
-    
+
+    # Normalize repetitive sequences of Tibetan characters
     text = re.sub(r"ཧཧཧ+", "ཧཧཧ", text)
     text = re.sub(r'ཧི་ཧི་(ཧི་)+', r'ཧི་ཧི་ཧི་', text)
     text = re.sub(r'ཧེ་ཧེ་(ཧེ་)+', r'ཧེ་ཧེ་ཧེ་', text)
@@ -471,6 +439,8 @@ def clean_transcription(text):
     text = re.sub(r'ཧོ་ཧོ་(ཧོ་)+', r'ཧོ་ཧོ་ཧོ་', text)
     text = re.sub(r'ཨོ་ཨོ་(ཨོ་)+', r'ཨོ་ཨོ་ཨོ་', text)
 
+    # Remove specific punctuation marks and special characters
     chars_to_ignore_regex = "[\,\?\.\!\-\;\:\"\“\%\‘\”\�\/\{\}\(\)༽》༼《༄༅༈༑༠'|·×༆༸༾ཿ྄྅྆྇ྋ࿒ᨵ​’„╗᩺╚༿᫥ྂ༊ྈ༁༂༃༇༈༉༒༷༺༻࿐࿑࿓࿔࿙࿚༴࿊]"
-    text = re.sub(chars_to_ignore_regex, '', text)+" "
+    text = re.sub(chars_to_ignore_regex, '', text) + " "
+    
     return text
