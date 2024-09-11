@@ -77,7 +77,41 @@ Get started with stt-split-audio by checking the catalog for a department and ch
     - DBNAME
     - DBUSER
     - PASSWORD
+
+5. Ways to run the script. 
+  Sample Commands for Individual Steps(for example youtube link download from new catalog):
+    first step cd to util directory: cd util 
     
+    Download YouTube videos and split into audio:
+
+      bash
+      Copy code
+      python ../audio_downloader/yt_download.py --config ../json_config/nw_config.json
+
+    Run inference on audio segments:
+
+      bash
+      Copy code
+      python ../inference_runner/run_inference.py --config ../json_config/nw_config.json
+
+    Generate CSV from inference results:
+
+      bash
+      Copy code
+      python ../make_db_csv/make_csv.py --config ../json_config/nw_config.json
+
+  How to Run the Entire Flow(for example youtube link download from new catalog):
+    To run all the steps in one go, use your run_all.sh script, which executes each of the three key Python scripts (yt_download.py, run_inference.py, make_csv.py) sequentially. The script checks for errors after each step and stops if an error is encountered.
+
+    Ensure your environment is set up:
+
+    Google Cloud credentials are in place.
+    Required Python libraries are installed.
+    AWS CLI is configured and authenticated.
+    go to util directory: cd util/
+    Run the shell script: ../run_all.sh
+
+
 ## Contributing guidelines
 If you'd like to help out, check out our [contributing guidelines](/CONTRIBUTING.md).
 
