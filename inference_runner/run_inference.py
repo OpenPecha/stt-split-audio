@@ -19,7 +19,6 @@ def main(config):
     dept = config['DEPARTMENT']
     segment_dir = config['SEGMENT_DIR']
     
-
     target_path = Path(segment_dir)
 
     rows = []
