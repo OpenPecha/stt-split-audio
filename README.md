@@ -87,7 +87,7 @@ Get started with stt-split-audio by checking the catalog for a department and ch
 
       bash code:
       ```
-      python ../audio_downloader/yt_download.py --config ../json_config/nw_config.json
+      python ../audio_download_and_split/yt_download.py --config ../json_config/nw_config.json
       ```
     - Run inference on audio segments:
 
