@@ -110,7 +110,6 @@ Get started with stt-split-audio by checking the catalog for a department and ch
       Run the shell script: ../run_all.sh
 
 
-
 ## implementation flow
 ![image](https://github.com/user-attachments/assets/147443db-60b3-4f7c-af54-b47e0ecea799)
 
