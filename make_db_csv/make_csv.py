@@ -26,7 +26,6 @@ def main(config):
     # Read the spreadsheet
     df = read_spreadsheet(sheet_id=sheet_id)
 
-
     # Read the CSV file with existing file names
     existing_files_df = pd.read_csv(f'../data/{dept}.csv')  # Replace with your actual CSV file name with all inference
 
@@ -43,13 +42,10 @@ def main(config):
 
     # Convert the matching rows to a DataFrame
     matching_rows_df = pd.DataFrame(matching_rows)
-
     # Drop any "Unnamed" columns from the DataFrame
     matching_rows_df = matching_rows_df.loc[:, ~matching_rows_df.columns.str.contains('^Unnamed')]
-
     # Save the matching rows to 'pc.csv' without including the index
     matching_rows_df.head()
-
     # Save the matching rows  without including the index
     matching_rows_df.to_csv(f"../data/{dept}_{from_id}_to_{to_id}.csv", index=False)
 
@@ -59,7 +55,7 @@ def main(config):
     matching_rows_df['group_id'] = group_id
     matching_rows_df['state'] = 'transcribing'
     matching_rows_df['id'] = matching_rows_df.index + last_db_id + 1
-
+    
     matching_rows_df.to_csv(f"../data/{dept}_{group_id}_{from_id}_to_{to_id}.csv", index=False)
     
 if __name__ == "__main__":

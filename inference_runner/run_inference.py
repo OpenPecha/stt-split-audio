@@ -18,9 +18,7 @@ def main(config):
     # Read configuration from the loaded JSON
     dept = config['DEPARTMENT']
     segment_dir = config['SEGMENT_DIR']
-    
     target_path = Path(segment_dir)
-
     rows = []
 
     generator = pipeline(model="openpecha/wav2vec2_run9")
@@ -29,14 +27,11 @@ def main(config):
         inf = generator(str(file))["text"]
         rows.append([file.stem, f"https://d38pmlk0v88drf.cloudfront.net/wav16k/{file.name}", inf, get_time_span(str(file.name))])
 
+
     df = pd.DataFrame(rows, columns =['file_name', 'url', 'inference_transcript', 'audio_duration'])
-
     df = df.sort_values('file_name').reset_index(drop=True)
-
     df[['inference_transcript','url']].iloc[0:10].to_dict()
-
     df['inference_transcript'] = df['inference_transcript'].map(clean_transcription)
-
     df.to_csv(f"../data/{dept}.csv", index=False)
 
 if __name__ == "__main__":
