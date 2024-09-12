@@ -2,7 +2,7 @@
 
 # Run yt_download.py
 echo "Running yt_download.py..."
-python ../audio_downloader/yt_download.py --config ../json_config/nw_config.json
+python ../audio_download_and_split/yt_download.py --config ../json_config/nw_config.json
 if [ $? -ne 0 ]; then
   echo "Error running yt_download.py. Exiting..."
   exit 1
