@@ -81,7 +81,7 @@ Get started with stt-split-audio by checking the catalog for a department and ch
 5. Ways to run the script. 
   Sample Commands for Individual Steps(for example youtube link download from new catalog):
 
-    - first step cd to util directory: cd util  
+    - first step cd to util directory: cd util 
     
     - Download YouTube videos and split into audio:
 
@@ -111,7 +111,6 @@ Get started with stt-split-audio by checking the catalog for a department and ch
       AWS CLI is configured and authenticated.
       go to util directory: cd util/
       Run the shell script: ../run_all.sh
-
 
 ## implementation flow
 ![image](https://github.com/user-attachments/assets/147443db-60b3-4f7c-af54-b47e0ecea799)
