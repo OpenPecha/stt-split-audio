@@ -80,8 +80,8 @@ Get started with stt-split-audio by checking the catalog for a department and ch
 
 5. Ways to run the script. 
   Sample Commands for Individual Steps(for example youtube link download from new catalog):
-    
-    - first step cd to util directory: cd util 
+
+    - first step cd to util directory: cd util  
     
     - Download YouTube videos and split into audio:
 
