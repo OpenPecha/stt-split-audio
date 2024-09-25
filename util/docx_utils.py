@@ -71,7 +71,6 @@ def get_original_text(OriginalText):
 
     return target
 
-
 def transfer_text(OriginalText, PredictedTSV, file_name, ColumnNumber='inference_transcript'):
     """transfers the annotation from predicted text to original text and returns a dataFrame
 
