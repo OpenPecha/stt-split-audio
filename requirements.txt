@@ -19,3 +19,4 @@ yt-dlp
 boto3
 ipywidgets
 jupyter
+git+https://github.com/OpenPecha/fast-antx.git

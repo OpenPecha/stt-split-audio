@@ -28,7 +28,7 @@ def main(config):
     df = read_spreadsheet(sheet_id=sheet_id)
 
     # Read the CSV file with existing file names
-    existing_files_df = pd.read_csv(f'{dept}.csv')  # Replace with your actual CSV file name
+    existing_files_df = pd.read_csv(f'../data/{dept}.csv')  # Replace with your actual CSV file name
 
     # List to store matching rows
     matching_rows = []
@@ -48,7 +48,7 @@ def main(config):
     # Save the matching rows to 'pc.csv' without including the index
     matching_rows_df.head()
     # Save the matching rows  without including the index
-    matching_rows_df.to_csv(f"{dept}_{from_id}_to_{to_id}.tsv", index=False, sep="\t")
+    matching_rows_df.to_csv(f"../data/{dept}_{from_id}_to_{to_id}.tsv", index=False, sep="\t")
 
     temp = []
 
@@ -58,7 +58,7 @@ def main(config):
 
         if sr_no >= from_id and sr_no <= to_id:
             print(id, sr_no)
-            transfer_text_df, status = transfer_text(f'etexts/{id}.txt', f"{dept}_{from_id}_to_{to_id}.tsv", id)
+            transfer_text_df, status = transfer_text(f'../util/etexts/{id}.txt', f"../data/{dept}_{from_id}_to_{to_id}.tsv", id)
             temp.append(transfer_text_df)
             print(status)
 
@@ -77,7 +77,7 @@ def main(config):
     transfered_text_df['state'] = 'transcribing'
     transfered_text_df['id'] = matching_rows_df.index + last_db_id + 1
 
-    transfered_text_df.to_csv(f"{dept}_{group_id}_{from_id}_to_{to_id}.csv", index=False)
+    transfered_text_df.to_csv(f"../data/{dept}_{group_id}_{from_id}_to_{to_id}.csv", index=False)
     
     
 if __name__ == "__main__":
