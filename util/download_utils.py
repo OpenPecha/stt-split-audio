@@ -36,3 +36,38 @@ def download_url_file(url, local_filename):
         print(f"Failed to download {local_filename.strip()} from {url}. Status code: {response.status_code}")
 
 
+import requests
+
+def download_audio_url_header(url, headers, file_name):
+    """
+    Downloads audio from the given URL using the specified headers and saves it as a file.
+    
+    Args:
+        url (str): The URL to download the audio from.
+        headers (dict): The headers to use for the request.
+        file_name (str): The name of the file to save the audio as, including the extension (.mp3, .wav, etc.).
+        
+    Returns:
+        None: The function saves the file locally.
+    """
+    # Send a GET request
+    response = requests.get(url, headers=headers, stream=True)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Get the content-type to verify it's an audio stream
+        content_type = response.headers.get('Content-Type')
+        print(f"Content-Type: {content_type}")
+
+        # Ensure it's audio content
+        if 'audio' in content_type:
+            # Save the audio stream to a file
+            with open(file_name, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:  # Filter out keep-alive chunks
+                        f.write(chunk)
+            print(f"Audio saved as {file_name}")
+        else:
+            print(f"Unexpected content type: {content_type}")
+    else:
+        print(f"Failed to retrieve the content. Status code: {response.status_code}")

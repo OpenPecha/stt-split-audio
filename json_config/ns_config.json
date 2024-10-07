@@ -1,7 +1,7 @@
 {
     "DEPARTMENT": "NS",
-    "FROM_ID": 66,
-    "TO_ID": 109,
+    "FROM_ID": 144,
+    "TO_ID": 216,
     "ID_COL": "ID",
     "LINK_COL": "youtube link",
     "SR_COL": "Sr. no",
@@ -12,7 +12,7 @@
     "FILE_FORMAT": "wav",
     "S3_BUCKET": "s3://monlam.ai.stt/wav16k/",
     "SHEET_ID": "1CfNpMZNJhVhw8auTI8Q59qBeoB0ygD0PTtb-vbDYOkE",
-    "GROUP_ID": 15,
+    "GROUP_ID": 8,
     "STT_NS_GA" : 5,
     "STT_NS_GB" : 8,
     "STT_NS_GG" : 14,
