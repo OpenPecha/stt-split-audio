@@ -217,7 +217,7 @@ def batch_convert_mp3_to_wav(input_dir, output_dir):
     files = os.listdir(input_dir)
     
     # Filter only .mp3 files
-    mp3_files = [f for f in files if f.startswith("t") and f.endswith(".mp3")]
+    mp3_files = [f for f in files if f.endswith(".mp3")]
     
     print(mp3_files)
     # Iterate over each MP3 file and convert to WAV
