@@ -114,6 +114,11 @@ Get started with stt-split-audio by checking the catalog for a department and ch
 ## implementation flow
 ![image](https://github.com/user-attachments/assets/147443db-60b3-4f7c-af54-b47e0ecea799)
 
+## Transfer Text Function
+### Overview
+The transfer_text function aligns and transfers annotations from predicted text (in a TSV file) to the original text (in a text file). The output is a DataFrame containing transferred annotations, ensuring a one-to-one correspondence between the predicted and original text.
+
+
 ## Contributing guidelines
 If you'd like to help out, check out our [contributing guidelines](/CONTRIBUTING.md).
 
