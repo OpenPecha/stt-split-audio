@@ -5,3 +5,5 @@ data/NS.csv
 data/PC.csv
 run_all1.sh
 audio_download_and_split/test_urldownload.py
+#DS_STORE
+.DS_STORE
