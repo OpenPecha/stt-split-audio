@@ -70,14 +70,20 @@ def main(config):
     transfered_text_df = transfered_text_df.sort_values('file_name')
     transfered_text_df = transfered_text_df.reset_index(drop=True)
 
+    # Compare the 'file_name' columns to find missing entries
+    missing_file_names_df = matching_rows_df[~matching_rows_df['file_name'].isin(transfered_text_df['file_name'])]
+
+    df_combined = pd.concat([missing_file_names_df, transfered_text_df], ignore_index=True)
+
+    # Save the result to a new CSV file or display it
     group_id = group_id
     last_db_id = get_max_db_id()
 
-    transfered_text_df['group_id'] = group_id
-    transfered_text_df['state'] = 'transcribing'
-    transfered_text_df['id'] = matching_rows_df.index + last_db_id + 1
+    df_combined['group_id'] = group_id
+    df_combined['state'] = 'transcribing'
+    df_combined['id'] = matching_rows_df.index + last_db_id + 1
 
-    transfered_text_df.to_csv(f"../data/{dept}_{group_id}_{from_id}_to_{to_id}.csv", index=False)
+    df_combined.to_csv(f"../data/{dept}_{group_id}_{from_id}_to_{to_id}_transfered.csv", index=False)
     
     
 if __name__ == "__main__":
