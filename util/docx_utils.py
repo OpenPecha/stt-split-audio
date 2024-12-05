@@ -67,6 +67,8 @@ def get_original_text(OriginalText):
     target = Path(f"{OriginalText}").read_text(encoding="utf-8")
     # remove unwanted characters
     target = target.replace("“", "").replace("”", "")
+    target = target.replace("\n","")
+
     print("extracted text from original file..")
 
     return target
