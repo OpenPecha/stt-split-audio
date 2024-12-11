@@ -74,7 +74,16 @@ def main(config):
     missing_file_names_df = matching_rows_df[~matching_rows_df['file_name'].isin(transfered_text_df['file_name'])]
 
     df_combined = pd.concat([missing_file_names_df, transfered_text_df], ignore_index=True)
-
+    # Update missing inference_transcript
+    df_combined['inference_transcript'] = df_combined['inference_transcript'].fillna('')
+    df_combined['inference_transcript'] = df_combined.apply(
+        lambda row: row['inference_transcript']
+        if row['inference_transcript'].strip() != ''
+        else matching_rows_df.loc[
+            matching_rows_df['file_name'] == row['file_name'], 'inference_transcript'
+        ].values[0],
+        axis=1
+    )
     # Save the result to a new CSV file or display it
     group_id = group_id
     last_db_id = get_max_db_id()
