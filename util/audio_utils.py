@@ -12,6 +12,30 @@ import subprocess
 upper_limit = 8
 lower_limit = 2
 
+def convert_to_wav_inplace(input_file):
+    """
+    Convert audio file to PCM-encoded WAV format in place using ffmpeg.
+    Args:
+    input_file (str): path to full audio file
+    """
+    try:
+        # Generate temporary file path
+        temp_file = input_file.replace(".wav", "_temp.wav")
+        
+        # Run ffmpeg command
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", input_file, "-ac", "1", "-ar", "16000", temp_file],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        
+        # Replace the original file with the temporary file
+        os.replace(temp_file, input_file)
+        print(f"Converted {input_file} to PCM-encoded WAV format.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error converting {input_file}: {e.stderr.decode()}")
+        raise
 
 def sec_to_millis(sec):
     return sec * 1000
@@ -65,6 +89,7 @@ def split_audio(audio_file, output_folder, dept):
         audio_file (str): path to full audio file
         output_folder (str): where to store the split segments
     """
+    convert_to_wav_inplace(audio_file)
     print(f"{audio_file} {output_folder}")
     vad = pipeline(audio_file)
     original_audio_segment = AudioSegment.from_file(audio_file)
