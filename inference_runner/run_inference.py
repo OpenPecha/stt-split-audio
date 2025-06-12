@@ -21,7 +21,7 @@ def main(config):
     target_path = Path(segment_dir)
     rows = []
 
-    generator = pipeline(model="spsither/mms_300_v3.1020")
+    generator = pipeline(model="ganga4364/mms_300_v4.96000")
 
     for file in tqdm(target_path.glob('*.wav'), total=len(list(target_path.glob('*.wav')))):
         inf = generator(str(file))["text"]

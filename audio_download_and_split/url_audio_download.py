@@ -1,15 +1,17 @@
 import os
 import sys
 import subprocess
+from pathlib import Path
 
 sys.path.append('../util')
 
 
 from google_utils import read_spreadsheet
 from files_utils import collect_segments
-from audio_utils import split_audio_files, convert_all_to_16K, batch_convert_mp3_to_wav
+from audio_utils_silero import split_audio_files
 from common_utils import parse_args_and_load_config
 from download_utils import download_url_file
+from stats_utils import generate_audio_stats_report
 
 
 def main(config):
@@ -26,7 +28,11 @@ def main(config):
     file_format = config['FILE_FORMAT']
     s3_bucket = config['S3_BUCKET']
     sheet_id = config['SHEET_ID']
-    output_directory_16K = config['OUTPUT_DIRECTORY_16K']  # Directory for 16K WAV files
+    
+    # Create necessary directories
+    Path(download_audio_dir).mkdir(parents=True, exist_ok=True)
+    Path(segment_dir).mkdir(parents=True, exist_ok=True)
+    print(f"Created directories: {download_audio_dir} and {segment_dir}")
 
     # Read the spreadsheet
     df = read_spreadsheet(sheet_id=sheet_id)
@@ -38,7 +44,7 @@ def main(config):
 
         if sr_no >= from_id and sr_no <= to_id:
             
-            audio_filename = f"{download_audio_dir}/{id}.mp3".strip()
+            audio_filename = f"{download_audio_dir}/{id}.wav".strip()
 
             print(id, url_path)
             if os.path.exists(audio_filename):
@@ -47,20 +53,16 @@ def main(config):
             if not os.path.exists(audio_filename):
                 download_url_file(url_path, audio_filename)
 
-
-    # Convert MP3 to WAV files
-    input_directory = download_audio_dir
-    output_directory = f"{dept}_audio_wav"  # Replace with your desired output directory path
-    batch_convert_mp3_to_wav(input_directory, output_directory)
-
-    # Convert all WAV files to 16K sample rate
-    convert_all_to_16K(output_directory, output_directory_16K)
-
     # Split the audio files
-    split_audio_files(prefix, file_format, output_directory_16K, dept)
+    split_audio_files(prefix, file_format, download_audio_dir, dept)
 
     # Collect the audio segments
-    collect_segments(prefix, f'{dept}_after_split', segment_dir)
+    collect_segments(prefix, f'../data/{dept}_after_split', segment_dir)
+    
+    # Generate audio statistics report
+    stats_output_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), f'data/{dept}_audio_stats.csv')
+    print(f"\nGenerating audio statistics report to {stats_output_file}...")
+    generate_audio_stats_report(dept, stats_output_file, file_format)
 
     # Upload the collected segments to the S3 bucket
     subprocess.run(f'aws s3 cp {segment_dir} {s3_bucket} --recursive', shell=True)
