@@ -1,4 +1,4 @@
-psycopg2
+psycopg2-binary
 python-dotenv
 google-auth
 google-auth-oauthlib
@@ -19,4 +19,5 @@ yt-dlp
 boto3
 ipywidgets
 jupyter
+silero-vad
 git+https://github.com/OpenPecha/fast-antx.git
